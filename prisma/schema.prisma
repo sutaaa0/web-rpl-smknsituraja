@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Teacher {
+  id          String      @id @default(cuid())
+  name        String
+  email       String   @unique
+  phoneNumber String
+  mapel    Mapel[]
+}
+
+model Mapel {
+  id         String   @id @default(cuid())
+  name       String
+  description String
+  teacherId  String
+  teacher    Teacher @relation(fields: [teacherId], references: [id])
+}
+
+
+model News {
+  id          String      @id @default(cuid())
+  title       String
+  content     String
+  publishedAt DateTime
+  authorId    String
+  author      Admin     @relation(fields: [authorId], references: [id])
+  tags        String[]
+}
+
+model Admin {
+  id    String    @id @default(cuid())
+  email String    @unique
+  name  String?
+  posts News[]
+}
+
+model StudentPortfolio {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  studentId   String
+  student     Student     @relation(fields: [studentId], references: [id])
+  createdAt   DateTime    @default(now())
+}
+
+model Student {
+  id    String     @id @default(cuid())
+  name  String?
+  studentPortfolio StudentPortfolio[]
+  extracurricular Extracurricular?
+}
+
+model Extracurricular {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  schedule    DateTime
+  ketuaId     String @unique
+  ketua       Student @relation(fields: [ketuaId], references: [id])
+}
+
+
+model JobVacancy {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  companyName String
+  location    String
+  postedAt    DateTime @default(now())
+  contactInfo String
+}
+

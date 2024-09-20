@@ -63,7 +63,7 @@ export async function PUT(req: Request) {
     }
   }
   
-// DELETE (DELETE): Hapus berita berdasarkan ID
+// DELETE: Hapus berita berdasarkan ID
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");

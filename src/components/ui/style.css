@@ -1,0 +1,13 @@
+@keyframes scroll-vertical {
+    0% {
+        transform: translateY(100%);
+    }
+
+    100% {
+        transform: translateY(-100%);
+    }
+}
+
+.animate-scroll-vertical {
+    animation: scroll-vertical var(--animation-duration, 40s) linear infinite;
+}

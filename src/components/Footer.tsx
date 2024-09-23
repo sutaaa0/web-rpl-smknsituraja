@@ -1,10 +1,18 @@
+"use client";
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input-search'
 import { Instagram, Facebook, Twitter, Youtube } from 'lucide-react'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 
 const Footer = () => {
+  const pathName = usePathname();
+
+  if (pathName === "/admin/create" || pathName === "/admin/dashboard" || pathName === "/admin/settings" || pathName === "/admin/profile" || pathName === "/testing") {
+    return null
+  }
+
   return (
     <div className='container mx-auto flex flex-col md:flex-row justify-between items-start w-full gap-6 sm:gap-12 p-4 sm:p-14 dark:bg-black bg-white text-black dark:text-white text-sm'>
       <div className='flex flex-col justify-center items-start gap-y-6'>

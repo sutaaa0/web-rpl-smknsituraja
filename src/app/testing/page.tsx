@@ -1,15 +1,23 @@
+"use server";
+import News from '@/components/News';
 import React from 'react'
-import SearchBtn from '../../components/SearchBtn'
-import Footer from './Footer'
-import { InfiniteMovingCardsDemo } from '@/components/MovingCardDemo'
-import ToggleButon from '@/components/ToggleButon'
-import { SideBar } from '@/components/SideBar'
-import { MobileSidebar } from '@/components/ui/sidebar'
+import { getNews } from '../../../server/actions';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+// import "@/components/editor.css"
 
-const page = () => {
+
+const page = async () => {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["news"],
+    queryFn: () => getNews(),
+  });
+
   return (
     <div className='container flex justify-center items-center mx-auto h-screen '>
-      <MobileSidebar/>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <News />
+      </HydrationBoundary>
     </div>
   )
 }

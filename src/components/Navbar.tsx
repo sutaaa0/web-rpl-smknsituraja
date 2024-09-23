@@ -6,8 +6,15 @@ import { ModeToggle } from "./ModeToggle";
 import SearchBtn from "./SearchBtn";
 import ThemeToggle from "./ToggleButon";
 import ToggleButon from "./ToggleButon";
+import { usePathname } from "next/navigation";
+
 
 export function Nav() {
+  const pathname = usePathname();
+  console.log(pathname);
+  if (pathname === "/admin/create" || pathname === "/admin/dashboard" || pathname === "/admin/settings" || pathname === "/admin/profile" || pathname === "/testing") {
+    return null
+  }
   return (
     <div className="relative w-full flex items-center justify-center">
       <Navbar className="top-2" />
@@ -21,7 +28,7 @@ function Navbar({ className }: { className?: string }) {
     <div className={cn("fixed top-10 mt-5 inset-x-0 max-w-2xl mx-auto z-50", className)}>
       <div className="relative">
         <ToggleButon />
-        <SearchBtn/>
+        <SearchBtn />
         <Menu setActive={setActive}>
           <MenuItem setActive={setActive} active={active} item="Services">
             <div className="flex flex-col space-y-4 text-sm">

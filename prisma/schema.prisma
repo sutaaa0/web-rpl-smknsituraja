@@ -29,15 +29,23 @@ model Mapel {
   teacher     Teacher @relation(fields: [teacherId], references: [id])
 }
 
+model Tag {
+  id   String @id @default(cuid())
+  name String @db.VarChar(100)
+  Post News[]
+}
+
 
 model News {
   id          String      @id @default(cuid())
   title       String
   content     String
+  imageUrl    String?
   publishedAt DateTime    @default(now())
   authorId    String
   author      Admin       @relation(fields: [authorId], references: [id])
-  tags        String[]
+  tagId       String
+  tag         Tag         @relation(fields: [tagId], references: [id])
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }

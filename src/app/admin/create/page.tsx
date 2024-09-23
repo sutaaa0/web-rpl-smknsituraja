@@ -6,29 +6,74 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Tiptap from "@/components/Tiptap";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useToast } from "../../../hooks/use-toast";
+import { Tag } from "@prisma/client";
+import "@/app/globals.css";
 
 export default function Page() {
-  const formShcema = z.object({
+  const router = useRouter();
+  const { toast } = useToast();
+
+  // Corrected schema name
+  const formSchema = z.object({
     title: z.string().min(5, { message: "Title must be at least 5 characters long" }).max(100, { message: "Title must be at most 100 characters long" }),
-    price: z.number().min(5, { message: "Title must be at least 5 characters long" }).max(100, { message: "Title must be at most 100 characters long" }),
-    content: z.string().min(5, { message: "Title must be at least 5 characters long" }).max(100, { message: "Title must be at most 100 characters long" }).trim(),
+    tag: z.string(),
+    content: z.string().min(5, { message: "Content must be at least 5 characters long" }).max(5000, { message: "Content must be at most 100 characters long" }).trim(),
   });
 
-  const form = useForm<z.infer<typeof formShcema>>({
-    resolver: zodResolver(formShcema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
       title: "",
+      tag: "",
       content: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formShcema>) {
+  // Mutation for submitting the news
+  const { mutate: createNews, isPending } = useMutation({
+    mutationFn: (newPost: z.infer<typeof formSchema>) => {
+      return axios.post('/api/news', newPost);
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to create news",
+        variant: "destructive",
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "News created successfully!",
+        variant: "default",
+      });
+      router.refresh();
+    },
+  });
 
+  const { data, isError, isLoading } = useQuery<Tag[]>({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      const response = await axios.get("/api/tags");
+      return response.data;
+    },
+  })
+
+
+  // Submit handler
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    createNews(values);
   }
 
   return (
-    <main className="p-24">
+    <main className="container mx-auto p-24">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -44,12 +89,42 @@ export default function Page() {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="tag"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tag</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a tag" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Tags</SelectLabel>
+                        <SelectItem value="news">News</SelectItem>
+                        {data?.map((tag: any, index) => (
+                          <SelectItem key={index} value={tag.id}>
+                            {tag.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>content</FormLabel>
+                <FormLabel>Content</FormLabel>
                 <FormControl>
                   <Tiptap description={field.name} onChange={field.onChange} />
                 </FormControl>
@@ -57,7 +132,10 @@ export default function Page() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="mt-5">Submit</Button>
+
+          <Button type="submit" className="mt-5">
+            {isPending ? 'Submitting...' : 'Submit'}
+          </Button>
         </form>
       </Form>
     </main>

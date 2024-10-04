@@ -29,24 +29,36 @@ model Mapel {
   teacher     Teacher @relation(fields: [teacherId], references: [id])
 }
 
-
-model News {
-  id          String      @id @default(cuid())
-  title       String
-  content     String
-  publishedAt DateTime    @default(now())
-  authorId    String
-  author      Admin       @relation(fields: [authorId], references: [id])
-  tags        String[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+model Tag {
+  id   String @id @default(cuid())
+  name String @db.VarChar(100)
+  Post News[]
 }
 
+
+model News {
+  id            String      @id @default(cuid())
+  title         String
+  content       String
+  imageUrl      String?
+  descriptions  String
+  publishedAt   DateTime    @default(now())
+  authorId      String
+  author        Admin       @relation(fields: [authorId], references: [id])
+  tagId         String
+  tag           Tag         @relation(fields: [tagId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+
 model Admin {
-  id    String    @id @default(cuid())
-  email String    @unique
-  name  String?
-  posts News[]
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  imageUrl        String?
+  hashPassword    String
+  posts           News[]
 }
 
 model StudentPortfolio {
@@ -61,7 +73,7 @@ model StudentPortfolio {
 
 model Student {
   id    String     @id @default(cuid())
-  name  String?
+  name  String
   studentPortfolio StudentPortfolio[]
   extracurricular Extracurricular?
 }

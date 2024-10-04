@@ -1,26 +1,48 @@
 // app/news/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+// Import Zod untuk validasi
+import { z } from "zod";
+import { Prisma } from "@prisma/client";
+import { auth } from "../../../../auth";
+
+// Validator schemas
+const newsSchema = z.object({
+  title: z.string().min(1),
+  descriptions: z.string().min(5).max(200),
+  tag: z.string().min(1),
+  content: z.string().min(1),
+  publishedAt: z.string().optional(),
+});
 
 // CREATE (POST): Tambah berita baru
 export async function POST(req: Request) {
+
+  const session = await auth();
+  const authorId = session?.user?.id;
+
   try {
     const body = await req.json();
-    const { title, content, publishedAt, authorId, tags } = body;
+    const { title, descriptions, content, tag } = newsSchema.parse(body);
 
     const news = await prisma.news.create({
       data: {
         title,
         content,
-        publishedAt: new Date(publishedAt),
+        descriptions,
+        publishedAt: new Date(),
         authorId,
-        tags,
-      },
+        tagId: tag,
+      } as unknown as Prisma.NewsCreateInput, // Add this type cast
     });
 
     return NextResponse.json(news, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create news" }, { status: 500 });
+    console.error("Error creating news:", error);
+    return NextResponse.json(
+      { error: "Failed to create news" },
+      { status: 500 }
+    );
   }
 }
 
@@ -30,39 +52,43 @@ export async function GET() {
     const news = await prisma.news.findMany({
       include: {
         author: true,
+        tag: true,
       },
     });
-
     return NextResponse.json(news, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 });
+    console.error("Error fetching news:", error);
+    return NextResponse.json({ message: "coudl not fetch news", status: 500 });
   }
 }
 
 // UPDATE (PUT): Perbarui berita berdasarkan ID
-// app/news/route.ts
 export async function PUT(req: Request) {
-    try {
-      const body = await req.json();
-      const { id, title, content, publishedAt, tags } = body;
-      console.log(body)
-  
-      const updatedNews = await prisma.news.update({
-        where: { id },
-        data: {
-          title,
-          content,
-          publishedAt: new Date(publishedAt),
-          tags,
-        },
-      });
-  
-      return NextResponse.json(updatedNews, { status: 200 });
-    } catch (error) {
-      return NextResponse.json({ error: 'Failed to update news' }, { status: 500 });
-    }
+  try {
+    const body = await req.json();
+    const { id } = z.object({ id: z.string() }).parse(body);
+    const { title, content, publishedAt, tag } = newsSchema.parse(body);
+
+    const updatedNews = await prisma.news.update({
+      where: { id },
+      data: {
+        title,
+        content,
+        publishedAt: new Date(publishedAt || Date.now()),
+        ...{ tagId: tag },
+      } as Prisma.NewsUncheckedUpdateInput,
+    });
+
+    return NextResponse.json(updatedNews, { status: 200 });
+  } catch (error) {
+    console.error("Error updating news:", error);
+    return NextResponse.json(
+      { error: "Failed to update news" },
+      { status: 500 }
+    );
   }
-  
+}
+
 // DELETE: Hapus berita berdasarkan ID
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -73,12 +99,13 @@ export async function DELETE(req: Request) {
   }
 
   try {
-    await prisma.news.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ message: "News deleted" }, { status: 200 });
+    await prisma.news.delete({ where: { id } });
+    return NextResponse.json({ message: "News deleted" }, { status: 204 }); // No Content
   } catch (error) {
-    return NextResponse.json({ error: "Failed to delete news" }, { status: 500 });
+    console.error("Error deleting news:", error);
+    return NextResponse.json(
+      { error: "Failed to delete news" },
+      { status: 500 }
+    );
   }
 }

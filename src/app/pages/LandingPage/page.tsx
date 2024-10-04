@@ -5,7 +5,6 @@ import React from "react";
 import "@/app/globals.css";
 import { Cover } from "@/components/ui/cover";
 import { InfiniteMovingCardsDemo } from "@/components/MovingCardDemo";
-import { CardTes } from "@/components/CardTes";
 
 const LandingPage = () => {
   return (

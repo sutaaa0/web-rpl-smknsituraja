@@ -1,65 +1,51 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input-search";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Tiptap from "@/components/Tiptap";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { redirect, useRouter } from "next/navigation";
+import { useToast } from "../../../hooks/use-toast";
+import axios from "axios";
+import { NewsForm } from "@/components/NewsForm";
+import { Tag } from "@prisma/client";
+import { ProgressLoading } from "@/components/ProgressLoading";
+import "@/app/globals.css";
 
-export default function Page() {
-  const formShcema = z.object({
-    title: z.string().min(5, { message: "Title must be at least 5 characters long" }).max(100, { message: "Title must be at most 100 characters long" }),
-    price: z.number().min(5, { message: "Title must be at least 5 characters long" }).max(100, { message: "Title must be at most 100 characters long" }),
-    content: z.string().min(5, { message: "Title must be at least 5 characters long" }).max(100, { message: "Title must be at most 100 characters long" }).trim(),
-  });
+export default function page() {
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formShcema>>({
-    resolver: zodResolver(formShcema),
-    mode: "onChange",
-    defaultValues: {
-      title: "",
-      content: "",
+  const { mutate: createNews, isPending } = useMutation({
+    mutationFn: (newPost) => axios.post('/api/news', newPost),
+    onSuccess: () => {
+      toast({ title: "Success", description: "News created successfully!", variant: "default" });
+      router.push("/admin/news");
+      // router.refresh();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create news", variant: "destructive" });
     },
   });
 
-  function onSubmit(values: z.infer<typeof formShcema>) {
+  const { data: tags, isLoading } = useQuery<Tag[]>({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      const response = await axios.get("/api/tags");
+      return response.data;
+    },
+  });
 
+  if (isLoading) return <div className="flex items-center justify-center h-screen w-full">
+    <ProgressLoading/>
+  </div>;
+
+  const defaultValues = { title: "", descriptions: "", tag: "", content: "" };
+
+  function handleSubmit(values: any) {
+    console.log("value :", values);
+    createNews(values);
   }
 
   return (
-    <main className="p-24">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Main title for your product" {...field} className="rounded" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>content</FormLabel>
-                <FormControl>
-                  <Tiptap description={field.name} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="mt-5">Submit</Button>
-        </form>
-      </Form>
+    <main className="container mx-auto p-24 px-[380px] overflow-y-scroll  no-scrollbar">
+      <NewsForm onSubmit={handleSubmit} defaultValues={defaultValues} isPending={isPending} content={defaultValues.content} tags={tags || []} />
     </main>
   );
 }

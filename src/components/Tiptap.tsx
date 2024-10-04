@@ -91,4 +91,3 @@ export default function Tiptap({ description, onChange }: Props) {
     </div>
   );
 }
-

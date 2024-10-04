@@ -1,3 +1,4 @@
+
 // app/layout.tsx (RootLayout untuk halaman utama)
 import { Nav } from "@/components/Nav";
 import { ThemeProvider } from "@/components/theme-provider";

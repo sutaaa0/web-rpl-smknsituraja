@@ -1,6 +1,12 @@
 import React from 'react'
+import "@/app/globals.css"
+import { auth } from '../../../../auth';
+import { redirect } from 'next/navigation';
 
-const page = () => {
+const Dashboard = async () => {
+    const session = await auth();
+    if(!session) return redirect('/auth/signin')
+
     return (
         <div className="flex flex-1 w-full h-full">
             <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-grow w-full h-full">
@@ -43,4 +49,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Dashboard

@@ -1,0 +1,82 @@
+/* Default untuk layar kecil */
+p {
+    font-size: 16px;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  h2 {
+    font-size: 20px;
+  }
+  
+  h3 {
+    font-size: 18px;
+  }
+  
+  img {
+    width: 100%;
+    height: auto;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  /* Media query untuk layar lebih besar (tablet) */
+  @media (min-width: 640px) {
+    p {
+      font-size: 18px;
+    }
+  
+    h1 {
+      font-size: 28px;
+    }
+  
+    h2 {
+      font-size: 24px;
+    }
+  
+    h3 {
+      font-size: 22px;
+    }
+  }
+  
+  /* Media query untuk layar lebih besar (desktop) */
+  @media (min-width: 768px) {
+    p {
+      font-size: 20px;
+    }
+  
+    h1 {
+      font-size: 32px;
+    }
+  
+    h2 {
+      font-size: 28px;
+    }
+  
+    h3 {
+      font-size: 24px;
+    }
+  }
+  
+  /* Media query untuk layar sangat besar (desktop besar) */
+  @media (min-width: 1024px) {
+    p {
+      font-size: 25px;
+    }
+  
+    h1 {
+      font-size: 40px;
+    }
+  
+    h2 {
+      font-size: 35px;
+    }
+  
+    h3 {
+      font-size: 30px;
+    }
+  }
+  

@@ -1,5 +1,5 @@
 // app/layout.tsx (RootLayout untuk halaman utama)
-import { Nav } from "@/components/Navbar";
+import { Nav } from "@/components/Nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Roboto } from "next/font/google";
 import Provider from "@/lib/Provider";
@@ -21,12 +21,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${roboto.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system">
-          {/* <Nav /> */}
+          <Nav />
           <Provider>
             {children}
             <Toaster />
           </Provider>
-          {/* <Footer /> */}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

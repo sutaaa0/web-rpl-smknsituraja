@@ -1,6 +1,8 @@
 
 import { prisma } from "@/lib/db";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function getNews() {
@@ -43,25 +45,42 @@ export async function getTags() {
   }
 }
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { title, content, publishedAt } = body;
 
-    const news = await prisma.news.create({
-      data: {
-        title,
-        content,
-        publishedAt: new Date(publishedAt),
-        authorId: "2233223322",
-        tagId: "1222122",
-      },
-    });
-    return NextResponse.json(news, { status: 201 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to create news" },
-      { status: 500 }
-    );
+export async function getUserByEmail(email: string) {
+ try {
+  const user = await prisma.admin.findUnique({
+    where: {
+      email
+    }
+  });
+
+  return user;
+ } catch (error) {
+  console.log(error);
+  return null;
+ }
+}
+
+export const logInWithCredentials = async (email: string, password: string) => {
+  
+  const admin = await getUserByEmail(email);
+
+  if(admin) {
+    return NextResponse.json({ error: "Admin already exists", status: 400 });
   }
+
+  try {
+    await prisma.admin.create({
+      data: {
+        email,
+        hashPassword: password
+      }
+    });
+
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+
+  revalidatePath("/admin/dashboard");
 }

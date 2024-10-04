@@ -4,19 +4,18 @@ import { HoveredLink, Menu, MenuItem, ProductItem } from "./ui/navbar-menu";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "./ModeToggle";
 import SearchBtn from "./SearchBtn";
-import ThemeToggle from "./ToggleButon";
 import ToggleButon from "./ToggleButon";
 import { usePathname } from "next/navigation";
 
 
-export function Nav() {
+export function NavbarWrapp() {
   const pathname = usePathname();
   console.log(pathname);
   if (pathname === "/admin/create" || pathname === "/admin/dashboard" || pathname === "/admin/settings" || pathname === "/admin/profile" || pathname === "/testing") {
     return null
   }
   return (
-    <div className="relative w-full flex items-center justify-center">
+    <div className="relative w-full lg:flex items-center justify-center hidden ">
       <Navbar className="top-2" />
     </div>
   );

@@ -1,19 +1,20 @@
-"use server";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-const fetchNews = async () => {
-  const data = await axios.get("/api/news");
-
-  if (!data) {
-    throw new Error("Failed to fetch news");
-  }
-  return data.data;
-};
-
-export const useFetchNews = () => {
-  return useQuery({
+export const useNews = () => {
+    
+  const { data: news, isLoading: isNewsLoading } = useQuery({
     queryKey: ["news"],
-    queryFn: fetchNews,
+    queryFn: async () => {
+      const response = await axios.get("/api/news");
+      return response.data;
+    },
   });
+
+  return {
+    news,
+    isNewsLoading,
+  };
+
+
 };

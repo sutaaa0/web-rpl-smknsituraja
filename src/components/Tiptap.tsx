@@ -4,13 +4,14 @@ import StarterKit from "@tiptap/starter-kit";
 import Heading from "@tiptap/extension-heading";
 import { Toolbar } from "./Toolbar";
 import Image from "@tiptap/extension-image";
-import CodeBlock from '@tiptap/extension-code-block'
 import BulletList from '@tiptap/extension-bullet-list'
 import ListItem from '@tiptap/extension-list-item'
 import { useCallback } from 'react';
 import TextAlign from '@tiptap/extension-text-align'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import Paragraph from '@tiptap/extension-paragraph'
 import { all, createLowlight as createHighlight } from 'lowlight'
+import HardBreak from '@tiptap/extension-hard-break';
 import "./editor.css";
 
 
@@ -22,12 +23,30 @@ type Props = {
 const lowlight = createHighlight(all)
 
 
+
 export default function Tiptap({ description, onChange }: Props) {
+  console.log("ini descriptions",description)
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        paragraph: false
+      }),
       BulletList,
+      Paragraph,
       ListItem,
+      HardBreak.extend({
+        addKeyboardShortcuts() {
+          return {
+            Enter: () => this.editor.commands.setHardBreak(),  // Shortcut untuk hard break dengan Enter
+            'Mod-Enter': () => this.editor.commands.setHorizontalRule(),  // Shortcut untuk horizontal rule dengan Mod-Enter
+          };
+        },
+      }).configure({
+        HTMLAttributes: {
+          class: 'leading-tight',  // Styling untuk hard break
+        },
+      }),
+ 
       TextAlign.configure({
         types: ['heading', 'paragraph', 'bulletList', 'orderedList', 'codeBlock'],
       }),
@@ -50,9 +69,13 @@ export default function Tiptap({ description, onChange }: Props) {
       },
     },
     immediatelyRender: false,
+
     onUpdate({ editor }) {
-      onChange(editor.getHTML());
+      const htmlContent = editor.getHTML();
+      console.log("Generated HTML content:", htmlContent);
+      onChange(htmlContent);
     },
+    
   });
 
   const addImageToEditor = useCallback((url: string) => {
@@ -67,8 +90,5 @@ export default function Tiptap({ description, onChange }: Props) {
       <EditorContent editor={editor} />
     </div>
   );
-}
-function createLowlight(all: any) {
-  throw new Error("Function not implemented.");
 }
 

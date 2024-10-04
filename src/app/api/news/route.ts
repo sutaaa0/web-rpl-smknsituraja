@@ -3,10 +3,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 // Import Zod untuk validasi
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+import { auth } from "../../../../auth";
 
 // Validator schemas
 const newsSchema = z.object({
   title: z.string().min(1),
+  descriptions: z.string().min(5).max(200),
   tag: z.string().min(1),
   content: z.string().min(1),
   publishedAt: z.string().optional(),
@@ -14,18 +17,23 @@ const newsSchema = z.object({
 
 // CREATE (POST): Tambah berita baru
 export async function POST(req: Request) {
+
+  const session = await auth();
+  const authorId = session?.user?.id;
+
   try {
     const body = await req.json();
-    const { title, content, tag } = newsSchema.parse(body);
+    const { title, descriptions, content, tag } = newsSchema.parse(body);
 
     const news = await prisma.news.create({
       data: {
         title,
         content,
+        descriptions,
         publishedAt: new Date(),
-        authorId: "cm1bkar7w0000v8xfgzrkkxig",
+        authorId,
         tagId: tag,
-      },
+      } as unknown as Prisma.NewsCreateInput, // Add this type cast
     });
 
     return NextResponse.json(news, { status: 201 });
@@ -41,7 +49,12 @@ export async function POST(req: Request) {
 // READ (GET): Ambil semua berita
 export async function GET() {
   try {
-    const news = await prisma.news.findMany();
+    const news = await prisma.news.findMany({
+      include: {
+        author: true,
+        tag: true,
+      },
+    });
     return NextResponse.json(news, { status: 200 });
   } catch (error) {
     console.error("Error fetching news:", error);
@@ -62,8 +75,8 @@ export async function PUT(req: Request) {
         title,
         content,
         publishedAt: new Date(publishedAt || Date.now()),
-        tagId: tag,
-      },
+        ...{ tagId: tag },
+      } as Prisma.NewsUncheckedUpdateInput,
     });
 
     return NextResponse.json(updatedNews, { status: 200 });

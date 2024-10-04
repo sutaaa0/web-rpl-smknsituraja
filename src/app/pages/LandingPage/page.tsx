@@ -5,9 +5,6 @@ import React from "react";
 import "@/app/globals.css";
 import { Cover } from "@/components/ui/cover";
 import { InfiniteMovingCardsDemo } from "@/components/MovingCardDemo";
-import { CardTes } from "@/components/CardTes";
-import { Button } from "@/components/ui/button";
-import FormNews from "@/components/FormNews";
 
 const LandingPage = () => {
   return (
@@ -48,10 +45,6 @@ const LandingPage = () => {
             <p className="text-sm md:text-lg text-gray-400 dark:text-gray-300">Cerita dari Alumni dan Siswa RPL</p>
           </div>
           <InfiniteMovingCardsDemo />
-        </div>
-        <div className="mt-12">
-          <Button>Helo</Button>
-          <FormNews/>
         </div>
       </div>
     </div>

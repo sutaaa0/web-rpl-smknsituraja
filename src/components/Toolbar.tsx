@@ -1,6 +1,6 @@
 "use client";
 import { type Editor } from "@tiptap/react";
-import { Bold, Heading2, Strikethrough, Italic, List, ListOrdered, ImageIcon, Code, AlignLeft, AlignCenter, AlignRight, Heading1, Heading3 } from "lucide-react";
+import { Bold, Heading2, Strikethrough, Italic, List, ListOrdered, ImageIcon, Code, AlignLeft, AlignCenter, AlignRight, Heading1, Heading3, CornerDownLeft } from "lucide-react";
 import { Toggle } from "./ui/toggle";
 import { useRef } from "react";
 import axios from "axios";
@@ -107,6 +107,11 @@ export function Toolbar({ editor, addImageToEditor }: Props) {
       <Toggle size={"sm"} pressed={editor.isActive("alignRight")} onPressedChange={() => editor.chain().focus().setTextAlign('right').run()}>
         <AlignRight className="h-4 w-4" />
       </Toggle>
+
+      <Toggle size={"sm"} pressed={editor.isActive("hardBreak")} onPressedChange={() => editor.chain().focus().setHardBreak().run()}>
+        <CornerDownLeft className="h-4 w-4" />
+      </Toggle>
+
 
       {/* Hidden file input */}
       <input

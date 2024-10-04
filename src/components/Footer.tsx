@@ -9,7 +9,7 @@ import React from 'react'
 const Footer = () => {
   const pathName = usePathname();
 
-  if (pathName === "/admin/create" || pathName === "/admin/dashboard" || pathName === "/admin/settings" || pathName === "/admin/profile" || pathName === "/testing") {
+  if (pathName === "/admin/create" || pathName === "/admin/dashboard" || pathName === "/admin/settings" || pathName === "/admin/profile" || pathName === "/admin") {
     return null
   }
 
